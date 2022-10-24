@@ -14,7 +14,7 @@
                 <i class="fa-solid fa-plus text-xl hover:text-weather-secondary duration-150 cursor-pointer"></i>
             </div>
 
-            <BaseModal :modalActive="modalActive">
+            <BaseModal :modalActive="modalActive" @close-modal="toggleModal">
                 <div class="text-black">
                     <h1 class="text-2xl mb-1">About</h1>
                     <p class="mb-4">
