@@ -1,18 +1,24 @@
 <script setup>
 import { ref } from "vue";
 import axios from "axios";
+import { useRouter } from "vue-router";
 
 const mapboxAPIKey = "pk.eyJ1IjoibXVodGFzaW1mdWFkc2hvd21payIsImEiOiJja3g1amI0dDExMjk2MzBueG84d2oxOXI5In0.sOUA0Jjjb0BM1DX1FoZf4g";
 const searchQuery = ref("");
 const queryTimeout = ref(null);
 const mapboxSearchResults = ref(null);
 const searchError = ref(false);
+const router = useRouter();
 
 const getSearchResults = () => {
+	// clearing the previously set timeout
 	clearTimeout(queryTimeout.value);
+
+	// Beginning a new timeout within which to make axios calls
 	queryTimeout.value = setTimeout(async () => {
 		if(searchQuery.value !== "") {
 			try {
+				// Using Axios to collect search results using the Mapbox API
 				const result = await axios.get(
 				`https://api.mapbox.com/geocoding/v5/mapbox.places/
 				${searchQuery.value}.json?access_token=${mapboxAPIKey}
@@ -20,14 +26,36 @@ const getSearchResults = () => {
 				);
 				mapboxSearchResults.value = result.data.features;
 			} catch {
+				// Setting the application's search error state when
+				// an error is caught on search
 				searchError.value = true;
-				console.log("Search", searchError.value);
 			}
 		} else {
 			mapboxSearchResults.value = null;
 		}
 	}, 300);
-}
+};
+
+const previewCity = (searchResult) => {
+	const placeName = searchResult.place_name.split(", ");
+	const city = placeName[0];
+	const state = placeName.length > 2 ? placeName[1] : 'None';
+	const country = placeName[placeName.length - 1];
+
+	// Routing based on search results
+	router.push({
+		name: 'cityView',
+		params: {
+			state: state.replaceAll(" ", ""), 
+			city: city.replaceAll(" ", "")
+		},
+		query: {
+			lat: searchResult.geometry.coordinates[1],
+			lng: searchResult.geometry.coordinates[0],
+			preview: true
+		}
+	})
+};
 </script>
 
 <template>
@@ -58,6 +86,7 @@ const getSearchResults = () => {
 						v-for="searchResult in mapboxSearchResults"
 						:key="searchResult.id"
 						class="py-2 cursor-pointer"
+						@click="previewCity(searchResult)"
 					>
 					{{ searchResult.place_name }}
 					</li>
