@@ -3,6 +3,7 @@ import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import CityList from "../components/CityList.vue";
+import CityCardSkeleton from "../components/CityCardSkeleton.vue";
 
 const mapboxAPIKey = "pk.eyJ1IjoibXVodGFzaW1mdWFkc2hvd21payIsImEiOiJja3g1amI0dDExMjk2MzBueG84d2oxOXI5In0.sOUA0Jjjb0BM1DX1FoZf4g";
 const searchQuery = ref("");
@@ -99,7 +100,7 @@ const previewCity = (searchResult) => {
 			<Suspense>
 				<CityList/>
 				<template #fallback>
-					<p>Loading...</p>
+					<CityCardSkeleton/>
 				</template>
 			</Suspense>
 		</div>
